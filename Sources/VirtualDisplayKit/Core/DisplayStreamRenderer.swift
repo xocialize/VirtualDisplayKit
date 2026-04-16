@@ -205,7 +205,7 @@ public final class DisplayStreamRenderer: NSView {
                 
                 // Create output handler
                 let output = SCStreamOutputHandler { [weak self] surface, pixelBuffer in
-                    Task { @MainActor in
+                    Task { @MainActor [weak self] in
                         self?.handleFrame(surface: surface, pixelBuffer: pixelBuffer)
                     }
                 }

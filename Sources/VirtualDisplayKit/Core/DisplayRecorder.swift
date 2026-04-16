@@ -288,7 +288,7 @@ public final class DisplayRecorder: ObservableObject {
         
         // Start duration timer
         durationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.updateDuration()
             }
         }

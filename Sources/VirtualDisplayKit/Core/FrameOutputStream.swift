@@ -12,6 +12,13 @@ import CoreMedia
 import CoreVideo
 import VideoToolbox
 
+// Wrapper to cross Sendable boundaries for Core Media types that are not
+// themselves Sendable but are safe to hand off to MainActor work.
+private struct UncheckedSendableBox<Value>: @unchecked Sendable {
+    let value: Value
+    init(_ value: Value) { self.value = value }
+}
+
 /// Delegate for receiving streaming frames
 @MainActor
 public protocol FrameOutputStreamDelegate: AnyObject {
@@ -365,10 +372,10 @@ public final class FrameOutputStream: ObservableObject {
             frameProperties: nil,
             infoFlagsOut: &flags
         ) { [weak self] status, infoFlags, sampleBuffer in
-            guard let self = self, status == noErr, let buffer = sampleBuffer else { return }
-            
-            Task { @MainActor in
-                self.handleEncodedFrame(buffer)
+            guard status == noErr, let buffer = sampleBuffer else { return }
+            let sendableBuffer = UncheckedSendableBox(buffer)
+            Task { @MainActor [weak self] in
+                self?.handleEncodedFrame(sendableBuffer.value)
             }
         }
         
