@@ -1,0 +1,4 @@
+module CVirtualDisplayPrivate {
+    header "CGVirtualDisplayPrivate.h"
+    export *
+}
